@@ -1,5 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("hardhat-deploy");
+require("@nomiclabs/hardhat-ethers"); // Ensure ethers is included
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {

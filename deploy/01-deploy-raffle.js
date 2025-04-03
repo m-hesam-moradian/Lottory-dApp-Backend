@@ -1,20 +1,20 @@
-const { network } = require("hardhat")
+const { network } = require("hardhat");
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
-    const { deploy, log } = deployments
-    const { deployer } = await getNamedAccounts()
-    
-    const entranceAmount = ethers.utils.parseEther("0.1") // 0.1 ETH
-    const lotteryDuration = 60 // 60 minutes
+  const { deploy, log } = deployments;
+  const { deployer } = await getNamedAccounts();
 
-    const raffle = await deploy("Raffle", {
-        from: deployer,
-        args: [entranceAmount, lotteryDuration],
-        log: true,
-        waitConfirmations: network.config.blockConfirmations || 1,
-    })
+  const entranceAmount = ethers.utils.parseEther("0.1"); // 0.1 ETH
+  const lotteryDuration = 60; // 60 minutes
 
-    log("Raffle deployed to:", raffle.address)
-}
+  const raffle = await deploy("Raffle", {
+    from: deployer,
+    args: [entranceAmount, lotteryDuration],
+    log: true,
+    waitConfirmations: network.config.blockConfirmations || 1,
+  });
 
-module.exports.tags = ["all", "raffle"]
+  log("Raffle deployed to:", raffle.address);
+};
+
+module.exports.tags = ["all", "raffle"];

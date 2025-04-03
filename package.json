@@ -2,10 +2,11 @@
   "name": "lottory-backend-dapp",
   "version": "1.0.0",
   "description": "lottory dApp backend create by hardhat and contract fully decentralised without using any server side solid server completly automate even the random part is from chainlink",
- "type": "commonjs",
+
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "hardhat deploy"
   },
   "author": "Sam-Moradian",
   "license": "MIT",
@@ -22,7 +23,7 @@
     "@nomiclabs/hardhat-waffle": "^2.0.6",
     "@typechain/ethers-v6": "^0.5.0",
     "@typechain/hardhat": "^9.0.0",
-    "chai": "^5.2.0",
+    "chai": "4.3.7",
     "dotenv": "^16.4.7",
     "ethereum-waffle": "^4.0.10",
     "ethers": "^6.13.5",
