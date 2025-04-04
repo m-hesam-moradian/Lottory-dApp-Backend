@@ -14,6 +14,10 @@ contract Raffle {
     address payable private s_owner; // Renamed for consistency    npm install --save-dev hardhat-deploy @nomiclabs/hardhat-ethers@npm:hardhat-deploy-ethers ethers
     address payable[] private s_players;
 
+
+
+      event Deposit(address indexed player);
+
     constructor(uint256 entranceAmount, uint256 addLotteryTimeInMinutes) payable {
         i_entranceAmount = entranceAmount;
         i_lotteryEndTime = block.timestamp + (addLotteryTimeInMinutes * 60);
@@ -23,6 +27,9 @@ contract Raffle {
     function enterLottery() external payable {
         if (msg.value < i_entranceAmount) revert Raffle__NotEnoughETHEntered();
         s_players.push(payable(msg.sender));
+
+
+        emit Deposit(msg.sender);  // This line emits the event
     }
 
     function withdraw() external {

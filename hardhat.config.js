@@ -7,6 +7,15 @@ module.exports = {
     deployer: {
       default: 0, // First account in Hardhat network will be the deployer
     },
+    user: {
+      default: 1, // Second account in Hardhat network will be the user
+    },
+    user2: {
+      default: 2, // Third account in Hardhat network will be the user2
+    },
+    user3: {
+      default: 3, // Fourth account in Hardhat network will be the user3
+    },
   },
   // networks: {
   //   hardhat: {},
