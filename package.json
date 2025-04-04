@@ -1,40 +1,18 @@
 {
-  "name": "lottory-backend-dapp",
-  "version": "1.0.0",
-  "description": "lottory dApp backend create by hardhat and contract fully decentralised without using any server side solid server completly automate even the random part is from chainlink",
-
+  "name": "lottory-dapp-backend",
+  "version": "0.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "hardhat deploy"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Sam-Moradian",
+  "author": "Sam Moradian",
   "license": "MIT",
+  "description": "",
   "devDependencies": {
-    "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
-    "@nomicfoundation/hardhat-ethers": "^3.0.0",
-    "@nomicfoundation/hardhat-ignition": "^0.15.0",
-    "@nomicfoundation/hardhat-ignition-ethers": "^0.15.0",
-    "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "@nomicfoundation/hardhat-verify": "^2.0.0",
-    "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers",
-    "@nomiclabs/hardhat-etherscan": "^3.1.8",
-    "@nomiclabs/hardhat-waffle": "^2.0.6",
-    "@typechain/ethers-v6": "^0.5.0",
-    "@typechain/hardhat": "^9.0.0",
-    "chai": "4.3.7",
-    "dotenv": "^16.4.7",
-    "ethereum-waffle": "^4.0.10",
+    "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@^0.4.2",
     "ethers": "^6.13.5",
     "hardhat": "^2.22.19",
-    "hardhat-contract-sizer": "^2.10.0",
-    "hardhat-deploy": "^1.0.1",
-    "hardhat-gas-reporter": "^2.2.2",
-    "prettier": "^3.5.3",
-    "prettier-plugin-solidity": "^1.4.2",
-    "solhint": "^5.0.5",
-    "solidity-coverage": "^0.8.14",
-    "typechain": "^8.3.0"
+    "hardhat-deploy": "^1.0.1"
   }
 }
