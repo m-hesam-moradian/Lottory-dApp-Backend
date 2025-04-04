@@ -11,7 +11,7 @@ contract Raffle {
 
     uint256 private immutable i_entranceAmount;
     uint256 private immutable i_lotteryEndTime;
-    address payable private s_owner; // Renamed for consistency    npm install --save-dev hardhat-deploy @nomiclabs/hardhat-ethers@npm:hardhat-deploy-ethers ethers
+    address payable public s_owner; // Renamed for consistency    npm install --save-dev hardhat-deploy @nomiclabs/hardhat-ethers@npm:hardhat-deploy-ethers ethers
     address payable[] private s_players;
 
 
@@ -21,7 +21,10 @@ contract Raffle {
     constructor(uint256 entranceAmount, uint256 addLotteryTimeInMinutes) payable {
         i_entranceAmount = entranceAmount;
         i_lotteryEndTime = block.timestamp + (addLotteryTimeInMinutes * 60);
-        s_owner = payable(msg.sender); // Set owner in constructor
+        //hardcodded owner
+       s_owner = payable(0x1234567890123456789012345678901234567890); 
+        
+        // Set owner in constructor
     }
 
     function enterLottery() external payable {
