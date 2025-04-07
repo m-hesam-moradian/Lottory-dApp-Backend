@@ -2,8 +2,8 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 describe("Raffle Contract", function () {
-  let raffle, deployer, user, user2, user3, winner;
-  const entranceAmount = ethers.parseEther("0.01"); // 0.01 ETH entrance amount
+  let raffle, deployer, user, user2, user3;
+  const entranceAmount = ethers.parseEther("0.1"); // 0.01 ETH entrance amount
   const userAmount = ethers.parseEther("0.25"); // 0.25 ETH for users
   const addLotteryTimeInMinutes = 1; // Lottery duration in minutes
   beforeEach(async function () {
@@ -35,6 +35,8 @@ describe("Raffle Contract", function () {
   });
 
   describe(" test multi enter and increase time  ", function () {
+    let winner;
+    let winnerSigner;
     this.beforeEach(async function () {
       await raffle.connect(user).enterLottery({ value: entranceAmount });
       await raffle.connect(user2).enterLottery({ value: entranceAmount });
@@ -43,6 +45,12 @@ describe("Raffle Contract", function () {
       const timeToIncrease = 2 * 60 + 1; // 2 minutes + 1 second
       await network.provider.send("evm_increaseTime", [timeToIncrease]);
       await network.provider.send("evm_mine");
+
+      const tx = await raffle.getWinner();
+      await tx.wait();
+
+      winner = await raffle.s_owner();
+      winnerSigner = await ethers.getSigner(winner);
     });
     it("Should allow multiple users to enter", async function () {
       const player1 = await raffle.getPlayerAtIndex(0);
@@ -55,20 +63,10 @@ describe("Raffle Contract", function () {
     });
 
     it("Should select a winner after the lottery time has passed", async function () {
-      const tx = await raffle.getWinner();
-      await tx.wait();
-
-      winner = await raffle.s_owner();
-
-      expect([user, user2, user3, winner]).to.include(winner);
+      expect([user.address, user2.address, user3.address]).to.include(winner);
     });
     describe("test withdraw section", function () {
       it("Should transfer funds to owner and reset players", async function () {
-        const txwinner = await raffle.getWinner();
-        await txwinner.wait();
-
-        winner = await raffle.s_owner();
-        const winnerSigner = await ethers.getSigner(winner);
         let initialOwnerBalance = await ethers.provider.getBalance(
           winnerSigner
         );
@@ -92,16 +90,55 @@ describe("Raffle Contract", function () {
 
         // 6. Check: players array is cleared
         await expect(raffle.getPlayerAtIndex(0)).to.be.reverted;
-        console.log(finalOwnerBalance);
-        console.log(initialOwnerBalance + contractBalance + gasCost);
 
         // 7. Check: owner received the funds (minus gas)
-        expect(finalOwnerBalance).to.be.closeTo(
-          initialOwnerBalance + contractBalance + gasCost,
-          ethers.parseEther("0.0001") // Adjust this value based on gas fees
+        expect(finalOwnerBalance).to.be.equal(
+          initialOwnerBalance + contractBalance - gasCost
+        ); // Adjust this value based on gas fees
 
-          // Define an appropriate tolerance value
-        );
+        it("Should revert if a non-winner tries to withdraw", async function () {
+          // Trigger winner selection
+          const txWinner = await raffle.getWinner();
+          await txWinner.wait();
+
+          const winnerAddress = await raffle.s_owner(); // assuming this is your winner
+
+          // Find a user who is NOT the winner
+          let nonWinner;
+          for (const account of [user, user2, user3]) {
+            if (account.address !== winnerAddress) {
+              nonWinner = account;
+              break;
+            }
+          }
+
+          expect(nonWinner).to.not.be.undefined; // sanity check
+
+          // Attempt withdraw with non-winner
+          await expect(
+            raffle.connect(nonWinner).withdraw()
+          ).to.be.revertedWithCustomError(
+            raffle,
+            "Raffle__OnlyWinnerCanWithdraw"
+          );
+        });
+      });
+      it("Should revert if a non-winner tries to withdraw", async function () {
+        // Find a user who is NOT the winner
+        let nonWinner;
+        for (const account of [user, user2, user3]) {
+          if (account.address !== winner) {
+            nonWinner = account;
+            break;
+          }
+        }
+
+        expect(nonWinner).to.not.be.undefined; // sanity check
+
+        // Attempt withdraw with non-winner
+        await expect(
+          raffle.connect(nonWinner).withdraw()
+        ).to.be.revertedWithCustomError(raffle, "Raffle__NotOwner");
       });
     });
   });
