@@ -34,83 +34,75 @@ describe("Raffle Contract", function () {
     ).to.be.revertedWithCustomError(raffle, "Raffle__NotEnoughETHEntered");
   });
 
-  it("Should allow multiple users to enter", async function () {
-    await raffle.connect(user).enterLottery({ value: entranceAmount });
-    await raffle.connect(user2).enterLottery({ value: entranceAmount });
-    await raffle.connect(user3).enterLottery({ value: entranceAmount });
-
-    const player1 = await raffle.getPlayerAtIndex(0);
-    const player2 = await raffle.getPlayerAtIndex(1);
-    const player3 = await raffle.getPlayerAtIndex(2);
-
-    expect(player1).to.equal(user.address);
-    expect(player2).to.equal(user2.address);
-    expect(player3).to.equal(user3.address);
-  });
-
-  it("Should select a winner after the lottery time has passed", async function () {
-    // Users enter
-    await raffle.connect(user).enterLottery({ value: entranceAmount });
-    await raffle.connect(user2).enterLottery({ value: entranceAmount });
-    await raffle.connect(user3).enterLottery({ value: entranceAmount });
-
-    // Optional real wait (not recommended)
-    // await new Promise((resolve) => setTimeout(resolve, 2 * 60 * 1000));
-
-    // Simulate 2 minutes passing using EVM time travel
-    const timeToIncrease = 2 * 60 + 1; // 2 minutes + 1 second
-    await network.provider.send("evm_increaseTime", [timeToIncrease]);
-    await network.provider.send("evm_mine");
-
-    const tx = await raffle.getWinner();
-    await tx.wait();
-
-    winner = await raffle.s_owner();
-
-    expect([user, user2, user3, winner]).to.include(winner);
-  });
-  describe("test withdraw section", function () {
-    it("Should transfer funds to owner and reset players", async function () {
+  describe(" test multi enter and increase time  ", function () {
+    this.beforeEach(async function () {
       await raffle.connect(user).enterLottery({ value: entranceAmount });
+      await raffle.connect(user2).enterLottery({ value: entranceAmount });
+      await raffle.connect(user3).enterLottery({ value: entranceAmount });
 
       const timeToIncrease = 2 * 60 + 1; // 2 minutes + 1 second
       await network.provider.send("evm_increaseTime", [timeToIncrease]);
       await network.provider.send("evm_mine");
+    });
+    it("Should allow multiple users to enter", async function () {
+      const player1 = await raffle.getPlayerAtIndex(0);
+      const player2 = await raffle.getPlayerAtIndex(1);
+      const player3 = await raffle.getPlayerAtIndex(2);
 
-      const txwinner = await raffle.getWinner();
-      await txwinner.wait();
+      expect(player1).to.equal(user.address);
+      expect(player2).to.equal(user2.address);
+      expect(player3).to.equal(user3.address);
+    });
+
+    it("Should select a winner after the lottery time has passed", async function () {
+      const tx = await raffle.getWinner();
+      await tx.wait();
 
       winner = await raffle.s_owner();
-      const winnerSigner = await ethers.getSigner(winner);
-      let initialOwnerBalance = await ethers.provider.getBalance(winnerSigner);
 
-      const contractBalance = await ethers.provider.getBalance(raffle.target);
+      expect([user, user2, user3, winner]).to.include(winner);
+    });
+    describe("test withdraw section", function () {
+      it("Should transfer funds to owner and reset players", async function () {
+        const txwinner = await raffle.getWinner();
+        await txwinner.wait();
 
-      // 3. Withdraw
-      const tx = await raffle.connect(winnerSigner).withdraw();
-      const receipt = await tx.wait();
-      const gasUsed = receipt.gasUsed;
-      const gasPrice = await receipt.gasPrice;
-      const gasCost = gasUsed * gasPrice;
+        winner = await raffle.s_owner();
+        const winnerSigner = await ethers.getSigner(winner);
+        let initialOwnerBalance = await ethers.provider.getBalance(
+          winnerSigner
+        );
 
-      // 4. Get final balances
-      const finalOwnerBalance = await ethers.provider.getBalance(winnerSigner);
+        const contractBalance = await ethers.provider.getBalance(raffle.target);
 
-      // 5. Check: contract is emptied
-      expect(await ethers.provider.getBalance(raffle.target)).to.equal(0);
+        // 3. Withdraw
+        const tx = await raffle.connect(winnerSigner).withdraw();
+        const receipt = await tx.wait();
+        const gasUsed = receipt.gasUsed;
+        const gasPrice = await receipt.gasPrice;
+        const gasCost = gasUsed * gasPrice;
 
-      // 6. Check: players array is cleared
-      await expect(raffle.getPlayerAtIndex(0)).to.be.reverted;
-      console.log(finalOwnerBalance);
-      console.log(initialOwnerBalance + contractBalance + gasCost);
+        // 4. Get final balances
+        const finalOwnerBalance = await ethers.provider.getBalance(
+          winnerSigner
+        );
 
-      // 7. Check: owner received the funds (minus gas)
-      expect(finalOwnerBalance).to.be.closeTo(
-        initialOwnerBalance + contractBalance + gasCost,
-        ethers.parseEther("0.0001") // Adjust this value based on gas fees
+        // 5. Check: contract is emptied
+        expect(await ethers.provider.getBalance(raffle.target)).to.equal(0);
 
-        // Define an appropriate tolerance value
-      );
+        // 6. Check: players array is cleared
+        await expect(raffle.getPlayerAtIndex(0)).to.be.reverted;
+        console.log(finalOwnerBalance);
+        console.log(initialOwnerBalance + contractBalance + gasCost);
+
+        // 7. Check: owner received the funds (minus gas)
+        expect(finalOwnerBalance).to.be.closeTo(
+          initialOwnerBalance + contractBalance + gasCost,
+          ethers.parseEther("0.0001") // Adjust this value based on gas fees
+
+          // Define an appropriate tolerance value
+        );
+      });
     });
   });
 });
