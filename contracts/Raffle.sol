@@ -23,7 +23,7 @@ contract Raffle {
         i_lotteryEndTime = block.timestamp + (addLotteryTimeInMinutes * 60);
         //hardcodded owner
        s_owner = payable(0x1234567890123456789012345678901234567890); 
-        
+        /*  */
         // Set owner in constructor
     }
 
