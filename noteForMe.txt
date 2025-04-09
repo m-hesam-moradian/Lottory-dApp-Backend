@@ -1,0 +1,4 @@
+create random number smart contract in remix 
+create mock vrf coordinator in remix 
+deploy mock and smart contract and try to connect to each other 
+you know :create subscreabtion , subs id , fund , add smartcontract to coordinator .....(use chainlink document)
