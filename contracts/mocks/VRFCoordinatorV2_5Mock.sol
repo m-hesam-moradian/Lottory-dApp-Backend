@@ -1,4 +1,3 @@
-//SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
-
-import "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.19;
+import "@chainlink/contracts@1.3.0/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
