@@ -11,28 +11,36 @@ const {
 const { network } = require("hardhat");
 // This script deploys the Ruffle contract using Hardhat's deployment plugin
 
-module.exports = async ({ getNamedAccounts, deployments }) => {
-  const _BASEFEE = BigInt(100000000000000000);
-  const _GASPRICELINK = 1000000000;
-  const _WEIPERUNITLINK = ethers.parseEther("0.007653"); // Converts 0.01 ETH to wei
+module.exports = async (
+  hre,
+
+  VRFCoordinatorV2_5MockAddress,
+  keyHash
+) => {
+  const { getNamedAccounts, deployments } = hre;
+
+  // Converts 0.01 ETH to wei
 
   const addLotteryTimeInMinutes = 5; // 5 minutes
   // Get deployer account from named accounts
   const { deployer } = await getNamedAccounts();
 
   // Use deployments.deploy to deploy the contract
-  const { deploy } = deployments;
+  const { deploy, log } = deployments;
 
   // Deploy the contract
-  const VRFCoordinatorV2_5Mock = await deploy("VRFCoordinatorV2_5Mock", {
+  const RandomNumberConsumerV2_5 = await deploy("RandomNumberConsumerV2_5", {
     from: deployer, // Account deploying the contract
-    args: [_BASEFEE, _GASPRICELINK, _WEIPERUNITLINK], // Constructor arguments
+    args: [subscriptionId, VRFCoordinatorV2_5MockAddress, keyHash], // Constructor arguments
     log: true, // Log the deployment process
   });
-
+  log(
+    `${RandomNumberConsumerV2_5.contractName} deployed to: ${RandomNumberConsumerV2_5.address}`
+  );
   // Log the contract address after deployment
-  console.log(
-    `${VRFCoordinatorV2_5Mock.contractName} deployed to: ${VRFCoordinatorV2_5Mock.address}`
+  log(`Subscription ID: ${subscriptionId.toString()}`);
+  log(
+    `VRFCoordinatorV2_5Mock Address: ${VRFCoordinatorV2_5MockAddress.toString()}`
   );
 };
 
