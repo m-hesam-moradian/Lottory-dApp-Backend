@@ -1,25 +1,14 @@
 // 01_deploy_contract.js
-//import from coordinator
 
 require("hardhat-deploy");
 // require("hardhat-deploy-ethers"); // Import ethers for contract deployment
 const { ethers } = require("hardhat"); // Import ethers from Hardhat
-const {
-  networkConfig,
-  developmentChains,
-} = require("../helper-hardhat-config");
-const { network } = require("hardhat");
 // This script deploys the Ruffle contract using Hardhat's deployment plugin
 
-module.exports = async (
-  hre,
-  subscriptionId,
-  keyHash,
-  VRFCoordinatorV2_5MockAddress
-) => {
-  const { getNamedAccounts, deployments } = hre;
-
-  // Converts 0.01 ETH to wei
+module.exports = async ({ getNamedAccounts, deployments }) => {
+  const _BASEFEE = BigInt(100000000000000000);
+  const _GASPRICELINK = 1000000000;
+  const _WEIPERUNITLINK = ethers.parseEther("0.007653"); // Converts 0.01 ETH to wei
 
   const addLotteryTimeInMinutes = 5; // 5 minutes
   // Get deployer account from named accounts
@@ -29,21 +18,25 @@ module.exports = async (
   const { deploy, log } = deployments;
 
   // Deploy the contract
+  const VRFCoordinatorV2_5Mock = await deploy("VRFCoordinatorV2_5Mock", {
+    from: deployer, // Account deploying the contract
+    args: [_BASEFEE, _GASPRICELINK, _WEIPERUNITLINK], // Constructor arguments
+    log: true, // Log the deployment process
+  });
 
   // Log the contract address after deployment
-  log(
-    `${VRFCoordinatorV2_5Mock.contractName} deployed to: ${VRFCoordinatorV2_5Mock.address}`
-  );
+
+  log(`VRFCoordinatorV2_5Mock deployed to: ${VRFCoordinatorV2_5Mock.address}`);
 
   // creat subscription
-  async () => {
-    log("Creating subscription...");
-    const transactionResponse = await VRFCoordinatorV2_5Mock.createSubscription;
-    const transactionReceipt = await transactionResponse.wait(1);
 
-    const subscriptionId = transactionReceipt.events[0].args.subId;
-    log(`Subscription created with ID: ${subscriptionId.toString()}`);
-  };
+  log("Creating subscription...");
+
+  const transactionResponse = await VRFCoordinatorV2_5Mock.createSubscription();
+  const transactionReceipt = await transactionResponse.wait(1);
+
+  const subscriptionId = transactionReceipt.events[0].args.subId;
+  log(`Subscription created with ID: ${subscriptionId.toString()}`);
 
   //fund subscription
   async () => {
@@ -61,12 +54,13 @@ module.exports = async (
     "0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc"; // Replace with your actual key hash
 
   const VRFCoordinatorV2_5MockAddress = VRFCoordinatorV2_5Mock.address; // Replace with your actual contract address
-  await deployConsumer(
-    hre,
-    subscriptionId,
-    keyHash,
-    VRFCoordinatorV2_5MockAddress
-  );
+  // await deployConsumer(
+  //   hre,
+  //   subscriptionId,
+  //   keyHash,
+  //   VRFCoordinatorV2_5MockAddress
+  // );
 };
 
 module.exports.tags = ["all"]; // Optional: Tagging the deployment
+module.exports.dependencies = ["VRFCoordinatorV2_5Mock"]; // Optional: Specify dependencies
