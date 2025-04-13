@@ -2,7 +2,30 @@ require("hardhat-deploy");
 require("@nomicfoundation/hardhat-toolbox"); // Useful for ethers.js
 
 module.exports = {
-  solidity: "0.8.28", // Choose your Solidity version
+  //solidity sevral versions
+  solidity: {
+    compilers: [
+      {
+        version: "0.8.19",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+      {
+        version: "0.8.28",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+    ],
+  },
+
   namedAccounts: {
     deployer: {
       default: 0, // First account in Hardhat network will be the deployer

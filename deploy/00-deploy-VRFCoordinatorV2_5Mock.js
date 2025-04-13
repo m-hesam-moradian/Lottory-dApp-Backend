@@ -17,26 +17,36 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   // Use deployments.deploy to deploy the contract
   const { deploy, log } = deployments;
 
-  // Deploy the contract
-  const VRFCoordinatorV2_5Mock = await deploy("VRFCoordinatorV2_5Mock", {
-    from: deployer, // Account deploying the contract
-    args: [_BASEFEE, _GASPRICELINK, _WEIPERUNITLINK], // Constructor arguments
-    log: true, // Log the deployment process
-  });
+  const VRFCoordinatorV2_5Mockfactory = await ethers.getContractFactory(
+    "VRFCoordinatorV2_5Mock"
+  );
+  const VRFCoordinatorV2_5Mock = await VRFCoordinatorV2_5Mockfactory.deploy(
+    _BASEFEE,
+    _GASPRICELINK,
+    _WEIPERUNITLINK // Constructor arguments
+  );
 
   // Log the contract address after deployment
 
   log(`VRFCoordinatorV2_5Mock deployed to: ${VRFCoordinatorV2_5Mock.address}`);
 
   // creat subscription
-
+  const replacer = (key, value) => {
+    if (typeof value === "bigint") {
+      return value.toString();
+    }
+    return value;
+  };
   log("Creating subscription...");
-
+  // log(
+  //   "VRFCoordinatorV2_5Mock:" +
+  //     JSON.stringify(VRFCoordinatorV2_5Mock, replacer, 2)
+  // );
   const transactionResponse = await VRFCoordinatorV2_5Mock.createSubscription();
   const transactionReceipt = await transactionResponse.wait(1);
 
-  const subscriptionId = transactionReceipt.events[0].args.subId;
-  log(`Subscription created with ID: ${subscriptionId.toString()}`);
+  // const subscriptionId = transactionReceipt.events[0].args.subId;
+  log(`Subscription created with ID: ${transactionReceipt.logs[0].args.subId}`);
 
   //fund subscription
   async () => {
