@@ -42,23 +42,23 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   //   "VRFCoordinatorV2_5Mock:" +
   //     JSON.stringify(VRFCoordinatorV2_5Mock, replacer, 2)
   // );
-  const transactionResponse = await VRFCoordinatorV2_5Mock.createSubscription();
+  let transactionResponse = await VRFCoordinatorV2_5Mock.createSubscription();
   const transactionReceipt = await transactionResponse.wait(1);
 
   const subscriptionId = transactionReceipt.logs[0].args.subId;
   log(`Subscription created with ID: ${subscriptionId.toString()}`);
 
   //fund subscription
-  async () => {
-    const fundAmount = ethers.parseEther("0.1"); // Amount to fund the subscription
-    log("Funding subscription...");
-    const transactionResponse = await VRFCoordinatorV2_5Mock.fundSubscription(
-      subscriptionId,
-      fundAmount
-    );
-    await transactionResponse.wait(1);
-    log(`Subscription funded with ${fundAmount.toString()} LINK`);
-  };
+
+  const fundAmount = ethers.parseEther("0.1"); // Amount to fund the subscription
+  log("Funding subscription...");
+  transactionResponse = await VRFCoordinatorV2_5Mock.fundSubscription(
+    subscriptionId,
+    fundAmount
+  );
+  await transactionResponse.wait(1);
+  log(`Subscription funded with ${fundAmount.toString()} LINK`);
+
   // deploy consumer
   const keyHash =
     "0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc"; // Replace with your actual key hash
