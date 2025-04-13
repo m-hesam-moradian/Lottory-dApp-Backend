@@ -45,8 +45,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const transactionResponse = await VRFCoordinatorV2_5Mock.createSubscription();
   const transactionReceipt = await transactionResponse.wait(1);
 
-  // const subscriptionId = transactionReceipt.events[0].args.subId;
-  log(`Subscription created with ID: ${transactionReceipt.logs[0].args.subId}`);
+  const subscriptionId = transactionReceipt.logs[0].args.subId;
+  log(`Subscription created with ID: ${subscriptionId.toString()}`);
 
   //fund subscription
   async () => {
