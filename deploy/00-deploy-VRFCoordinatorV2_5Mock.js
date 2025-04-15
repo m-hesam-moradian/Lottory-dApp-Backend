@@ -26,17 +26,18 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     _WEIPERUNITLINK // Constructor arguments
   );
 
-  // Log the contract address after deployment
+  await VRFCoordinatorV2_5Mock.waitForDeployment();
+  const VRFCoordinatorAddresss = await VRFCoordinatorV2_5Mock.getAddress();
 
-  log(`VRFCoordinatorV2_5Mock deployed to: ${VRFCoordinatorV2_5Mock.address}`);
+  console.log(`VRFCoordinatorV2_5Mock deployed to: ${VRFCoordinatorAddresss}`);
 
   // creat subscription
-  const replacer = (key, value) => {
-    if (typeof value === "bigint") {
-      return value.toString();
-    }
-    return value;
-  };
+  // const replacer = (key, value) => {
+  //   if (typeof value === "bigint") {
+  //     return value.toString();
+  //   }
+  //   return value;
+  // };
   log("Creating subscription...");
   // log(
   //   "VRFCoordinatorV2_5Mock:" +
