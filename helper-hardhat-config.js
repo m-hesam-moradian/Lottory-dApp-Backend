@@ -7,6 +7,8 @@ const networkConfig = {
     jobId: "29fa9aa13bf1468788b7cc4a500a45b8",
     fundAmount: "1000000000000000000",
     automationUpdateInterval: "30",
+    vrfCoordinatorV2: "", // will be replaced by the mock’s address on local network
+    subscriptionId: "1",
   },
   31337: {
     name: "localhost",
