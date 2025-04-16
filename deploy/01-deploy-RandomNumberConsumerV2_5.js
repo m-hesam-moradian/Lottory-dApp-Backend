@@ -8,12 +8,10 @@ const {
 module.exports = async function ({ getNamedAccounts, deployments }) {
   const { deploy, log, get } = deployments;
   const { deployer } = await getNamedAccounts();
-  let vrfCoordinatorV2Address, subscriptionId;
+  let vrfCoordinatorV2Address, subscriptionId, vrfCoordinatorV2Mock;
 
   if (developmentChains.includes(network.name)) {
-    const vrfCoordinatorV2Mock = await deployments.get(
-      "VRFCoordinatorV2_5Mock"
-    );
+    vrfCoordinatorV2Mock = await deployments.get("VRFCoordinatorV2_5Mock");
     vrfCoordinatorV2Address = vrfCoordinatorV2Mock.address;
     const vrfCoordinatorV2MockContract = await ethers.getContractAt(
       "VRFCoordinatorV2_5Mock",
@@ -35,12 +33,7 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
       `Subscription ${subscriptionId.toString()} funded with ${fundAmount} LINK`
     );
     // Add the consumer to the subscription
-    const RandomNumberConsumerV2_5 = await get("RandomNumberConsumerV2_5");
 
-    await vrfCoordinatorV2Mock.addConsumer(
-      subscriptionId,
-      RandomNumberConsumerV2_5.address
-    );
     log(
       `Consumer ${RandomNumberConsumerV2_5.address} added to subscription ${subscriptionId}`
     );
@@ -59,8 +52,21 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     args: [subscriptionId, vrfCoordinatorV2Address, keyHash],
     log: true,
   });
-  log("RandomNumberConsumerV2_5 deployed!");
+//wait to deploy 
+  await RandomNumberConsumerV2_5.deployTransaction.wait(1);
 
+  log(
+    `RandomNumberConsumerV2_5 deployed at ${RandomNumberConsumerV2_5.address}`
+  );
   // Optionally: If on a local network, add the consumer as an authorized consumer in the VRF mock
+  if (developmentChains.includes(network.name)) {
+    await vrfCoordinatorV2Mock.addConsumer(
+      subscriptionId,
+      RandomNumberConsumerV2_5.address
+    );
+    log(
+      `Consumer ${RandomNumberConsumerV2_5.address} added to subscription ${subscriptionId}`
+    );
+  }
 };
 module.exports.tags = ["all", "consumer"];
