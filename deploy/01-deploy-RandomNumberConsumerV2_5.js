@@ -33,10 +33,6 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
       `Subscription ${subscriptionId.toString()} funded with ${fundAmount} LINK`
     );
     // Add the consumer to the subscription
-
-    log(
-      `Consumer ${RandomNumberConsumerV2_5.address} added to subscription ${subscriptionId}`
-    );
   } else {
     vrfCoordinatorV2Address =
       networkConfig[network.config.chainId].vrfCoordinatorV2;
@@ -52,18 +48,23 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     args: [subscriptionId, vrfCoordinatorV2Address, keyHash],
     log: true,
   });
-//wait to deploy 
-  await RandomNumberConsumerV2_5.deployTransaction.wait(1);
 
   log(
     `RandomNumberConsumerV2_5 deployed at ${RandomNumberConsumerV2_5.address}`
   );
   // Optionally: If on a local network, add the consumer as an authorized consumer in the VRF mock
   if (developmentChains.includes(network.name)) {
-    await vrfCoordinatorV2Mock.addConsumer(
+    const vrfCoordinatorV2MockContract = await ethers.getContractAt(
+      "VRFCoordinatorV2_5Mock",
+      vrfCoordinatorV2Address
+    );
+
+    const txAddConsumer = await vrfCoordinatorV2MockContract.addConsumer(
       subscriptionId,
       RandomNumberConsumerV2_5.address
     );
+    await txAddConsumer.wait(1);
+
     log(
       `Consumer ${RandomNumberConsumerV2_5.address} added to subscription ${subscriptionId}`
     );
