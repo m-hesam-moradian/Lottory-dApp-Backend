@@ -25,48 +25,25 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     const receipt = await tx.wait();
     subscriptionId = receipt.logs[0].args.subId;
     log(`Subscription created with ID: ${subscriptionId.toString()}`);
+    //fund the subscription
+    const fundAmount = networkConfig[network.config.chainId].fundAmount;
+    await vrfCoordinatorV2MockContract.fundSubscription(
+      subscriptionId,
+      fundAmount
+    );
+    log(
+      `Subscription ${subscriptionId.toString()} funded with ${fundAmount} LINK`
+    );
+    // Add the consumer to the subscription
+    const RandomNumberConsumerV2_5 = await get("RandomNumberConsumerV2_5");
 
-    // creat subscription
-    // const replacer = (key, value) => {
-    //   if (typeof value === "bigint") {
-    //     return value.toString();
-    //   }
-    //   return value;
-    // // };
-    // log("Creating subscription...");
-    // // log(
-    // //   "VRFCoordinatorV2_5Mock:" +
-    // //     JSON.stringify(VRFCoordinatorV2_5Mock, replacer, 2)
-    // // );
-    // let transactionResponse = await VRFCoordinatorV2_5Mock.createSubscription();
-    // const transactionReceipt = await transactionResponse.wait(1);
-
-    // const subscriptionId = transactionReceipt.logs[0].args.subId;
-    // log(`Subscription created with ID: ${subscriptionId.toString()}`);
-
-    // //fund subscription
-
-    // const fundAmount = ethers.parseEther("0.1"); // Amount to fund the subscription
-    // log("Funding subscription...");
-    // transactionResponse = await VRFCoordinatorV2_5Mock.fundSubscription(
-    //   subscriptionId,
-    //   fundAmount
-    // );
-    // await transactionResponse.wait(1);
-    // log(`Subscription funded with ${fundAmount.toString()} LINK`);
-
-    // // deploy consumer
-    // const keyHash =
-    //   "0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc"; // Replace with your actual key hash
-
-    // const VRFCoordinatorV2_5MockAddress = VRFCoordinatorV2_5Mock.address; // Replace with your actual contract address
-    // await deployConsumer(
-    //   hre,
-    //   subscriptionId,
-    //   keyHash,
-    //   VRFCoordinatorV2_5MockAddress
-    // );
-    // Retrieve the VRF mock deployment
+    await vrfCoordinatorV2Mock.addConsumer(
+      subscriptionId,
+      RandomNumberConsumerV2_5.address
+    );
+    log(
+      `Consumer ${RandomNumberConsumerV2_5.address} added to subscription ${subscriptionId}`
+    );
   } else {
     vrfCoordinatorV2Address =
       networkConfig[network.config.chainId].vrfCoordinatorV2;
@@ -85,12 +62,5 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
   log("RandomNumberConsumerV2_5 deployed!");
 
   // Optionally: If on a local network, add the consumer as an authorized consumer in the VRF mock
-  if (developmentChains.includes(network.name)) {
-    await vrfCoordinator.addConsumer(
-      subscriptionId,
-      RandomNumberConsumerV2_5.address
-    );
-    log("Consumer contract added to VRF subscription!");
-  }
 };
 module.exports.tags = ["all", "consumer"];
