@@ -70,4 +70,4 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     );
   }
 };
-module.exports.tags = ["all", "consumer"];
+module.exports.tags = ["all", "RNC"];
