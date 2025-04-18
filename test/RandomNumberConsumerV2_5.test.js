@@ -10,12 +10,17 @@ describe("RandomNumberConsumerV2_5 tests :", function () {
     const deployment = await deployments.get("RandomNumberConsumerV2_5");
 
     // Get contract instance connected to deployer signer
-    this.RandomNumberConsumer = await ethers.getContractAt(
+    let RandomNumberConsumer = await ethers.getContractAt(
       "RandomNumberConsumerV2_5",
       deployment.address,
-      await ethers.getSigner(deployer)
+      deployer
+    );
+    console.log(
+      `this.RandomNumberConsumer.address :`,
+      RandomNumberConsumer.address
     );
   });
+
   //get random number
   it("Should get a random number", async function () {
     const tx = await this.RandomNumberConsumer.requestRandomWords();
